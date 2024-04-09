@@ -67,7 +67,7 @@ block ReturnBlock(Vector2 pos, int type)
 
 int main()
 {
-    InitWindow(screenWidth, screenHeight, "raylib");
+    InitWindow(screenWidth, screenHeight, "Sand Falling Simulator");
     SetTargetFPS(FPS);
 
     
@@ -303,12 +303,21 @@ void CycleTheGridUpDown(block grid[])
                 }
 
                 break;
+            case 11:
             case 8:
                 block = SmokeToFly(i, grid, 5);
                 grid[block.arrayBlock1Place].blockType = block.block1Type;
                 grid[block.arrayBlock1Place].color = Colors(block.block1Type);
                 grid[block.arrayBlock2Place].blockType = block.block2Type;
                 grid[block.arrayBlock2Place].color = Colors(block.block2Type);
+                if(grid[i].blockType == 11)
+                {
+                    if(GetRandomValue(1, 75) == 1)
+                    {
+                        grid[i].blockType = 8;
+                        grid[i].color = Colors(8);
+                    }
+                }
 
                 if(grid[i].lifetime < GetRandomValue(0, 2000)) grid[i].lifetime++;
                 else {
@@ -369,7 +378,7 @@ blockReturner WaterToFall(int cord, block grid[], int waterVel)
 {
     int blockUnder = cord + gridSize.x;
     if(blockUnder <= size){
-        if(grid[blockUnder].blockType == 0 || grid[blockUnder].blockType == 9 || (grid[blockUnder].blockType == 4 && grid[cord].blockType == 2) || (grid[blockUnder].blockType == 2 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 6 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 3 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 8 && grid[cord].blockType == 2) || (grid[blockUnder].blockType == 8 && grid[cord].blockType == 4)) return GetBlockUnderForWater(grid, cord, blockUnder);
+        if(grid[blockUnder].blockType == 0 || grid[blockUnder].blockType == 9 || (grid[blockUnder].blockType == 4 && grid[cord].blockType == 2) || (grid[blockUnder].blockType == 2 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 6 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 3 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 8 && grid[cord].blockType == 2) || (grid[blockUnder].blockType == 8 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 11 && grid[cord].blockType == 4) || (grid[blockUnder].blockType == 11 && grid[cord].blockType == 2)) return GetBlockUnderForWater(grid, cord, blockUnder);
 
         int randValue = GetRandomValue(1, 2);
         if(randValue == 1)
@@ -382,7 +391,7 @@ blockReturner WaterToFall(int cord, block grid[], int waterVel)
                     leftSize++;
                 }else break;
             }
-            if(grid[cord-leftSize].blockType == 0 || grid[cord+leftSize].blockType == 9 || (grid[cord+leftSize].blockType == 4 && grid[cord].blockType == 2) || (grid[cord+leftSize].blockType == 2 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 6 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 3 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 8 && grid[cord].blockType == 2 || (grid[cord+leftSize].blockType == 8 && grid[cord].blockType == 4))) return GetBlockUnderForWater(grid, cord, cord-leftSize);
+            if(grid[cord-leftSize].blockType == 0 || grid[cord+leftSize].blockType == 9 || (grid[cord+leftSize].blockType == 4 && grid[cord].blockType == 2) || (grid[cord+leftSize].blockType == 2 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 6 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 3 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 8 && grid[cord].blockType == 2) || (grid[cord+leftSize].blockType == 8 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 11 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 11 && grid[cord].blockType == 2)) return GetBlockUnderForWater(grid, cord, cord-leftSize);
         }else if(randValue == 2)
         {
             int rightSize = 1;
@@ -452,7 +461,7 @@ blockReturner SmokeToFly(int cord, block grid[], int waterVel)
                     leftSize++;
                 }else break;
             }
-            if(grid[cord-leftSize].blockType == 0 || (grid[cord+leftSize].blockType == 4 && grid[cord].blockType == 2) || (grid[cord+leftSize].blockType == 2 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 6 && grid[cord].blockType == 4) || (grid[cord+leftSize].blockType == 3 && grid[cord].blockType == 4)) return GetBlockUnderForWater(grid, cord, cord-leftSize);
+            if(grid[cord-leftSize].blockType == 0) return GetBlockUnderForWater(grid, cord, cord-leftSize);
         }else if(randValue == 2)
         {
             int rightSize = 1;
@@ -463,7 +472,7 @@ blockReturner SmokeToFly(int cord, block grid[], int waterVel)
                     rightSize++;
                 }else break;
             }
-            if(grid[cord+rightSize].blockType == 0 || (grid[cord+rightSize].blockType == 4 && grid[cord].blockType == 2) || (grid[cord+rightSize].blockType == 2 && grid[cord].blockType == 4) || (grid[cord+rightSize].blockType == 6 && grid[cord].blockType == 4) || (grid[cord+rightSize].blockType == 3 && grid[cord].blockType == 4)) return GetBlockUnderForWater(grid, cord, cord+rightSize);
+            if(grid[cord+rightSize].blockType == 0) return GetBlockUnderForWater(grid, cord, cord+rightSize);
         }
     }
     return MaintainBlock(grid, cord, cord);
@@ -476,8 +485,12 @@ void DestroyBlocks(block grid[], Vector2 pos)
         Vector2 vec = {grid[i].pos.x-pos.x, grid[i].pos.y-pos.y};
         if(grid[i].blockType != 5 && vec.x*vec.x + vec.y*vec.y < squareSize*250)
         {
-            grid[i].blockType = 8;
-            grid[i].color = RED;
+            int rand = GetRandomValue(1, 3);
+            if(rand == 1 || rand == 2 || grid[i].blockType == 10)
+            {
+                grid[i].blockType = 11;
+                grid[i].color = Colors(11);
+            }
         }
     }
 }
@@ -513,6 +526,7 @@ blockReturner GetBlockUnder(block grid[], int currentBlock, int nextBlock)
             color2 = grid[currentBlock].color;
             changeThird = false;
             break;
+        case 11:
         case 8:
         case 4:
         case 2:
@@ -606,8 +620,9 @@ blockReturner GetBlockUnderForWater(block grid[], int currentBlock, int nextBloc
                 changeThird = false;
             }
             break;
+        case 11:
         case 8:
-            if(block1Type != 8)
+            if(block1Type != 8 && block1Type != 11)
             {
                 block2Type = block1Type;
                 block1Type = 8;
@@ -698,9 +713,10 @@ blockReturner GetBlockUnderForAcid(block grid[], int currentBlock, int nextBlock
             color2 = color1;
             changeThird = false;
             break;
+        case 11:
         case 8:
             block2Type = block1Type;
-            block1Type = 8;
+            block1Type = grid[nextBlock].blockType;
             color1 = Colors(block1Type);
             color2 = Colors(block2Type);
             changeThird = false;
@@ -728,6 +744,7 @@ bool checkBlocksForAcid(int i)
         case 4:
         case 6:
         case 8:
+        case 11:
             return true;
         default:
             return false;
@@ -756,6 +773,7 @@ bool BlockChecker(block grid[], int i)
         case 4:
         case 8:
         case 9:
+        case 11:
             return true;
             break;
 
@@ -796,6 +814,8 @@ Color Colors(int i)
             return (Color){0 + GetRandomValue(0, 60), 255 + GetRandomValue(-25, 0), 0 + GetRandomValue(0, 60), 255};
         case 10:
             return (Color){0 + GetRandomValue(0, 10), 0 + GetRandomValue(0, 10), 0 + GetRandomValue(0, 10), 255};
+        case 11:
+            return (Color){255 + GetRandomValue(-25, 0), 225 + GetRandomValue(-25, 10), 150 + GetRandomValue(-25, 25), 255};
         default:
             return (Color){255 + GetRandomValue(0, 3), 255 + GetRandomValue(0, 3), 255 + GetRandomValue(0, 3), 255};
     }
